@@ -1,5 +1,5 @@
 create table rent( 
-    url varchar(2083) not null, 
+    url varchar(255) not null, 
     id int not null auto_increment, 
     title text not null, 
     price int not null, 
@@ -14,5 +14,10 @@ create table rent(
     cooking varchar(255), 
     id_req varchar(255),
     primary key(id), 
+    unique index url_hash using hash(url)
+);
+
+create table url(
+    url varchar(255) not null,
     unique index url_hash using hash(url)
 );

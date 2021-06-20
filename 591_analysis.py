@@ -1,8 +1,6 @@
 from os import write
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
-import numpy as np
 import MySQLdb
 import re
 import os
@@ -15,10 +13,7 @@ cursor = db.cursor()
 SQL = 'select * from url'
 cursor.execute(SQL)
 urls = cursor.fetchall()
-# print(urls)
-df = pd.DataFrame(urls)
-# print(df)
-os.remove("error.txt")
+# os.remove("error.txt")
 
 
 def log(text):
@@ -29,7 +24,7 @@ def getData(url):
     resp = requests.get('https:'+ url)
 
     if resp.status_code == 200:
-        bs = BeautifulSoup(resp.text, 'lxml')
+        bs = BeautifulSoup(resp.text, 'html.parser')
 
         title = None
         price = None
@@ -47,7 +42,7 @@ def getData(url):
         title = bs.find(class_='houseInfoTitle')
         if (title == None):
             log("No content: {}\n".format(url))
-            return
+            return {}
 
         title = title.text
 
@@ -89,22 +84,17 @@ def getData(url):
         log("404 URL: {}\n".format(url))
         return {}
 
-for url in df[0]:
-    # print(url)
+for url in urls:
+    url = url[0]
     url = url.replace(' ','') 
     data_dict = getData(url)
-    
-    if len(data_dict==0):
+    print(data_dict)
+    if len(data_dict) == 0:
         pass
     else:
-        placeholders = ', '.join(['%s']* len(data_dict))  ##按照dict长度返回如：%s, %s 的占位符
-        columns = ', '.join(data_dict.keys())    ##按照dict返回列名，如：age, name
+        placeholders = ', '.join(['%s']* len(data_dict))  
+        columns = ', '.join(data_dict.keys())   
         insert_sql =  "INSERT INTO rent591 ( %s ) VALUES ( %s )" % (columns, placeholders)
-
         cursor.execute(insert_sql, data_dict.values())
         db.commit()
-        # keys = ','.join(data_dict.keys())
-        # values = ','.join(['%s'] *len(data_dict))
-        # sql = 'INSERT INTO rent591({keys}) VALUES({values})'.format(keys=keys, values=values)
-        # cursor.execute(sql, )
-        # db.commit()
+

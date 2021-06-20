@@ -1,6 +1,4 @@
 import requests
-import pandas as pd
-import numpy as np
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
@@ -52,12 +50,12 @@ for i in range(0,total_pages):
 db = MySQLdb.connect(host="127.0.0.1", user="simple", passwd="123456789", db="rent591")
 cursor = db.cursor()
 
-for url in url_list:
-    SQL = 'insert into url(url) values(%s)'
-    cursor.execute(SQL, [url])
-    db.commit()
+for url in set(url_list):    
+    try:
+        SQL = 'insert into url(url) values(%s)'
+        cursor.execute(SQL, [url])
+        db.commit()
+    except Exception as e:
+        print(e)
 
 
-# df = pd.DataFrame(url_list)
-# df.to_csv("all_url.csv",index=0)
-# bs = BeautifulSoup(browser.next_page, 'html.parser')
